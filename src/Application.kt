@@ -68,6 +68,10 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
         }
 
+        get("/echo/{echo}") {
+            call.respondText(call.parameters["echo"] ?: "EMPTY", contentType = ContentType.Text.Plain)
+        }
+
         get("/json/jackson") {
             call.respond(mapOf("hello" to "world"))
         }
