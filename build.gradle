@@ -5,11 +5,13 @@ buildscript {
     
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.github.jengelman.gradle.plugins:shadow:5.2.0"
     }
 }
 
 apply plugin: 'kotlin'
 apply plugin: 'application'
+apply plugin: "com.github.johnrengelman.shadow"
 
 group 'yoshixmk'
 version '0.0.1-SNAPSHOT'
@@ -37,4 +39,10 @@ dependencies {
     implementation "io.ktor:ktor-server-host-common:$ktor_version"
     implementation "io.ktor:ktor-websockets:$ktor_version"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
+}
+
+shadowJar {
+    baseName = 'ktor-sample'
+    classifier = ''
+    version = "$version"
 }

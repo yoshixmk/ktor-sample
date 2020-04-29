@@ -31,7 +31,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
-fun Application.module(testing: Boolean = false) {
+fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
     install(ContentNegotiation) {
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT)
@@ -87,14 +87,14 @@ fun Application.module(testing: Boolean = false) {
         }
 
         install(StatusPages) {
-            exception<AuthenticationException> { cause ->
+            exception<AuthenticationException> { _ ->
                 call.respond(HttpStatusCode.Unauthorized)
             }
-            exception<AuthorizationException> { cause ->
+            exception<AuthorizationException> { _ ->
                 call.respond(HttpStatusCode.Forbidden)
             }
 
-            exception<Exception> { cause ->
+            exception<Exception> { _ ->
                 call.respond(HttpStatusCode.BadRequest)
             }
         }
