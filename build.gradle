@@ -2,10 +2,9 @@ buildscript {
     repositories {
         jcenter()
     }
-    
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.github.jengelman.gradle.plugins:shadow:5.2.0"
+        classpath "com.github.jengelman.gradle.plugins:shadow:$shadow_version"
     }
 }
 
@@ -39,6 +38,9 @@ dependencies {
     implementation "io.ktor:ktor-server-host-common:$ktor_version"
     implementation "io.ktor:ktor-websockets:$ktor_version"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
+    compile "org.jetbrains.exposed:exposed-core:$exposed_version"
+    compile "org.jetbrains.exposed:exposed-dao:$exposed_version"
+    compile "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
 }
 
 shadowJar {
