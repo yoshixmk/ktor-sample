@@ -69,12 +69,15 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.     
     }
 
-    Database.connect(
-        url = environment.config.property("database.url").getString(),
-        user = environment.config.property("database.user").getString(),
-        password = environment.config.property("database.password").getString(),
-        driver = "org.postgresql.Driver"
-    )
+    if (environment.config.propertyOrNull("ktor.deployment.environment") == null) {
+        val config = environment.config
+        Database.connect(
+            url = config.property("database.url").getString(),
+            user = environment.config.property("database.user").getString(),
+            password = environment.config.property("database.password").getString(),
+            driver = "org.postgresql.Driver"
+        )
+    }
 
     routing {
         get("/") {
