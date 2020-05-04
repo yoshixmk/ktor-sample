@@ -2,6 +2,7 @@ package yoshixmk
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import infrastructure.dao.Memo
+import infrastructure.dao.Memos
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -22,12 +23,15 @@ import io.ktor.request.path
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.webSocket
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.event.Level
+import yoshixmk.json.MemoPostInput
 import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -105,6 +109,19 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
                 mapOf(
                     "memo_id" to memoEntity.id.value,
                     "subject" to memoEntity.subject
+                )
+            )
+        }
+
+        post<MemoPostInput>("/memos") { input ->
+            call.respond(
+                HttpStatusCode.Created,
+                mapOf(
+                    "memo_id" to transaction {
+                        Memo.new {
+                            this.subject = input.subject
+                        }
+                    }.id.value
                 )
             )
         }

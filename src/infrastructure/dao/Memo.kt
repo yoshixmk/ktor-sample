@@ -11,5 +11,5 @@ object Memos : IntIdTable("memos", "memo_id") {
 
 class Memo(memoId: EntityID<Int>) : IntEntity(memoId) {
     companion object : IntEntityClass<Memo>(Memos)
-    val subject by Memos.subject
+    var subject by Memos.subject
 }
