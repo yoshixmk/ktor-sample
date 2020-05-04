@@ -1,9 +1,12 @@
 package yoshixmk
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import infrastructure.dao.Memo
+import infrastructure.dao.Memos
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
+import io.ktor.application.log
 import io.ktor.features.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -20,18 +23,23 @@ import io.ktor.request.path
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.ktor.routing.routing
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
+import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.webSocket
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.event.Level
+import yoshixmk.json.MemoPostInput
 import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
-@Suppress("unused") // Referenced in application.conf
+@KtorExperimentalAPI
+//@Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
-fun Application.module(testing: Boolean = false) {
+fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
     install(ContentNegotiation) {
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT)
@@ -65,6 +73,16 @@ fun Application.module(testing: Boolean = false) {
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.     
     }
 
+    if (environment.config.propertyOrNull("ktor.deployment.environment") == null) {
+        val config = environment.config
+        Database.connect(
+            url = config.property("database.url").getString(),
+            user = environment.config.property("database.user").getString(),
+            password = environment.config.property("database.password").getString(),
+            driver = "org.postgresql.Driver"
+        )
+    }
+
     routing {
         get("/") {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
@@ -82,19 +100,48 @@ fun Application.module(testing: Boolean = false) {
             throw Exception("boom")
         }
 
+        get("/memos/{id}") {
+            val id = call.parameters["id"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val memoEntity =
+                transaction { Memo.findById(id) }
+                    ?: return@get call.respond(HttpStatusCode.NotFound)
+            call.respond(
+                mapOf(
+                    "memo_id" to memoEntity.id.value,
+                    "subject" to memoEntity.subject
+                )
+            )
+        }
+
+        post<MemoPostInput>("/memos") { input ->
+            call.respond(
+                HttpStatusCode.Created,
+                mapOf(
+                    "memo_id" to transaction {
+                        Memo.new {
+                            this.subject = input.subject
+                        }
+                    }.id.value
+                )
+            )
+        }
+
         static("/") {
             resource("favicon.ico")
         }
 
         install(StatusPages) {
-            exception<AuthenticationException> { cause ->
+            exception<AuthenticationException> { e ->
+                log.info(e.stackTrace.toString())
                 call.respond(HttpStatusCode.Unauthorized)
             }
-            exception<AuthorizationException> { cause ->
+            exception<AuthorizationException> { e ->
+                log.info(e.stackTrace.toString())
                 call.respond(HttpStatusCode.Forbidden)
             }
-
-            exception<Exception> { cause ->
+            exception<Exception> { e ->
+                log.error(e.message)
+                e.printStackTrace()
                 call.respond(HttpStatusCode.BadRequest)
             }
         }
