@@ -2,6 +2,7 @@ package yoshixmk
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import infrastructure.dao.Memo
+import infrastructure.dao.Memos
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -19,17 +20,20 @@ import io.ktor.http.content.resource
 import io.ktor.http.content.static
 import io.ktor.jackson.jackson
 import io.ktor.request.path
+import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
+import io.ktor.routing.put
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.webSocket
+import json.MemoContent
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import org.slf4j.event.Level
-import json.MemoPostInput
 import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -100,20 +104,12 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
 
         get("/memos") {
             val list = transaction {
-                Memo.all().map { m -> json.Memo(m.id.value, m.subject) }
+                Memo.all().sortedBy { it.id }.map { m -> json.Memo(m.id.value, m.subject) }
             }
             call.respond(list)
         }
 
-        get("/memos/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val memoEntity =
-                transaction { Memo.findById(id) }
-                    ?: return@get call.respond(HttpStatusCode.NotFound)
-            call.respond(json.Memo(memoEntity.id.value, memoEntity.subject))
-        }
-
-        post<MemoPostInput>("/memos") { input ->
+        post<MemoContent>("/memos") { input ->
             call.respond(
                 HttpStatusCode.Created,
                 mapOf(
@@ -124,6 +120,28 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
                     }.id.value
                 )
             )
+        }
+
+        get("/memos/{id}") {
+            val id = call.parameters["id"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val memoEntity =
+                transaction { Memo.findById(id) }
+                    ?: return@get call.respond(HttpStatusCode.NotFound)
+            call.respond(json.Memo(memoEntity.id.value, memoEntity.subject))
+        }
+
+        put("/memos/{id}") {
+            val id = call.parameters["id"]?.toInt() ?: return@put call.respond(HttpStatusCode.BadRequest)
+            val memo = call.receive<MemoContent>()
+            val updatedCount = transaction {
+                Memos.update({ Memos.id eq id }) {
+                    it[subject] = memo.subject
+                }
+            }
+            return@put if (updatedCount > 0)
+                call.respond(HttpStatusCode.OK, json.Memo(id, memo.subject))
+            else
+                call.respond(HttpStatusCode.NotFound)
         }
 
         static("/") {
