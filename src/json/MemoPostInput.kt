@@ -1,3 +1,3 @@
-package yoshixmk.json
+package json
 
 data class MemoPostInput(val subject: String)

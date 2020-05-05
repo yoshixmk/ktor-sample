@@ -29,7 +29,7 @@ import io.ktor.websocket.webSocket
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.event.Level
-import yoshixmk.json.MemoPostInput
+import json.MemoPostInput
 import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -100,7 +100,7 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
 
         get("/memos") {
             val list = transaction {
-                Memo.all().map { m -> yoshixmk.json.Memo(m.id.value, m.subject) }
+                Memo.all().map { m -> json.Memo(m.id.value, m.subject) }
             }
             call.respond(list)
         }
@@ -110,12 +110,7 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
             val memoEntity =
                 transaction { Memo.findById(id) }
                     ?: return@get call.respond(HttpStatusCode.NotFound)
-            call.respond(
-                mapOf(
-                    "memo_id" to memoEntity.id.value,
-                    "subject" to memoEntity.subject
-                )
-            )
+            call.respond(json.Memo(memoEntity.id.value, memoEntity.subject))
         }
 
         post<MemoPostInput>("/memos") { input ->
