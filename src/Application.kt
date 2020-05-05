@@ -98,6 +98,13 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
             throw Exception("boom")
         }
 
+        get("/memos") {
+            val list = transaction {
+                Memo.all().map { m -> yoshixmk.json.Memo(m.id.value, m.subject) }
+            }
+            call.respond(list)
+        }
+
         get("/memos/{id}") {
             val id = call.parameters["id"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
             val memoEntity =
