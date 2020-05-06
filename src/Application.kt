@@ -23,14 +23,12 @@ import io.ktor.request.path
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondText
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.put
-import io.ktor.routing.routing
+import io.ktor.routing.*
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.webSocket
 import json.MemoContent
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.slf4j.event.Level
@@ -140,6 +138,16 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
             }
             return@put if (updatedCount > 0)
                 call.respond(HttpStatusCode.OK, json.Memo(id, memo.subject))
+            else
+                call.respond(HttpStatusCode.NotFound)
+        }
+
+        delete("/memos/{id}") {
+            val id = call.parameters["id"]?.toInt() ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            val deletedCount =
+                transaction { Memos.deleteWhere { Memos.id eq id } }
+            return@delete if (deletedCount > 0)
+                call.respond(HttpStatusCode.NoContent)
             else
                 call.respond(HttpStatusCode.NotFound)
         }
