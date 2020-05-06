@@ -5,6 +5,9 @@ import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.application.log
+import io.ktor.auth.Authentication
+import io.ktor.auth.UserIdPrincipal
+import io.ktor.auth.basic
 import io.ktor.features.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
@@ -68,6 +71,19 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
             password = environment.config.property("database.password").getString(),
             driver = "org.postgresql.Driver"
         )
+    }
+
+    install(Authentication) {
+        basic(name = "basic-auth") {
+            realm = "Ktor Server"
+            validate { credentials ->
+                if (credentials.name == name && credentials.password == name) {
+                    UserIdPrincipal(credentials.name)
+                } else {
+                    null
+                }
+            }
+        }
     }
 
     routing {

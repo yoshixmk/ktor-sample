@@ -1,6 +1,7 @@
 package routes
 
 import io.ktor.application.call
+import io.ktor.auth.authenticate
 import io.ktor.http.ContentType
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readText
@@ -11,19 +12,21 @@ import io.ktor.routing.get
 import io.ktor.websocket.webSocket
 
 fun Routing.systems() {
-    get("/") {
-        call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
-    }
-    get("/echo/{echo}") {
-        call.respondText(call.parameters["echo"] ?: "EMPTY", contentType = ContentType.Text.Plain)
-    }
+    authenticate("basic-auth") {
+        get("/") {
+            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
+        }
+        get("/echo/{echo}") {
+            call.respondText(call.parameters["echo"] ?: "EMPTY", contentType = ContentType.Text.Plain)
+        }
 
-    get("/json/jackson") {
-        call.respond(mapOf("hello" to "world"))
-    }
+        get("/json/jackson") {
+            call.respond(mapOf("hello" to "world"))
+        }
 
-    get("/boom") {
-        throw Exception("boom")
+        get("/boom") {
+            throw Exception("boom")
+        }
     }
 
     webSocket("/myws/echo") {
