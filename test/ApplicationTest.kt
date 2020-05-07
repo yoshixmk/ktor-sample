@@ -13,7 +13,12 @@ class ApplicationTest {
     @Test
     fun testRoot() {
         withTestApplication({ module(testing = true) }) {
-            handleRequest(HttpMethod.Get, "/").apply {
+            handleRequest(HttpMethod.Get, "/") {
+                addHeader(
+                    "Authorization",
+                    "Basic YmFzaWMtYXV0aDpiYXNpYy1hdXRo"
+                )
+            }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("HELLO WORLD!", response.content)
             }
