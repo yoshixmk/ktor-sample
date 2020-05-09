@@ -23,9 +23,12 @@ fun Routing.systems() {
         get("/json/jackson") {
             call.respond(mapOf("hello" to "world"))
         }
-
+    }
+    
+    authenticate("jwt") {
         get("/boom") {
-            throw Exception("boom")
+            // throw Exception("boom")
+            call.respondText("boom!!")
         }
     }
 

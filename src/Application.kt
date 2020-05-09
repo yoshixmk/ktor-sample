@@ -7,7 +7,9 @@ import io.ktor.application.install
 import io.ktor.application.log
 import io.ktor.auth.Authentication
 import io.ktor.auth.UserIdPrincipal
+import io.ktor.auth.UserPasswordCredential
 import io.ktor.auth.basic
+import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
@@ -16,9 +18,14 @@ import io.ktor.http.cio.websocket.pingPeriod
 import io.ktor.http.cio.websocket.timeout
 import io.ktor.jackson.jackson
 import io.ktor.request.path
+import io.ktor.request.receive
 import io.ktor.response.respond
+import io.ktor.response.respondText
+import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
+import jwt.sample.JwtConfig
+import jwt.sample.User
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.event.Level
 import routes.routes
@@ -84,10 +91,25 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
                 }
             }
         }
+
+        jwt(name = "jwt") {
+            verifier(JwtConfig.verifier)
+            realm = "ktor.io"
+            validate {
+                if (it.payload.claims.contains("id")) User.testUser else null
+            }
+        }
     }
 
     routing {
         routes()
+
+        post("/login") {
+            // val credentials = call.receive<UserPasswordCredential>()
+            val user = User.testUser // user by credentials
+            val token = JwtConfig.makeToken(user)
+            call.respondText(token)
+        }
 
         install(StatusPages) {
             exception<AuthenticationException> { e ->
