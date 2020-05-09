@@ -7,7 +7,6 @@ import io.ktor.application.install
 import io.ktor.application.log
 import io.ktor.auth.Authentication
 import io.ktor.auth.UserIdPrincipal
-import io.ktor.auth.UserPasswordCredential
 import io.ktor.auth.basic
 import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
@@ -18,7 +17,6 @@ import io.ktor.http.cio.websocket.pingPeriod
 import io.ktor.http.cio.websocket.timeout
 import io.ktor.jackson.jackson
 import io.ktor.request.path
-import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.post
