@@ -1,4 +1,4 @@
-package routes
+package yoshixmk.routes
 
 import io.ktor.http.content.resource
 import io.ktor.http.content.static

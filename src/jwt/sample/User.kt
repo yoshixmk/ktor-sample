@@ -1,4 +1,4 @@
-package jwt.sample
+package yoshixmk.jwt.sample
 
 import io.ktor.auth.Principal
 
@@ -11,5 +11,5 @@ data class User(
         val testUser = User(1, "Test", listOf("Egypt", "Austria"))
     }
 
-    fun findUserById(id: Int): User = testUser
+    // fun findUserById(id: Int): User = testUser
 }

@@ -1,4 +1,4 @@
-package jwt.sample
+package yoshixmk.jwt.sample
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier

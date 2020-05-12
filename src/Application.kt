@@ -22,11 +22,11 @@ import io.ktor.response.respondText
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
-import jwt.sample.JwtConfig
-import jwt.sample.User
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.event.Level
-import routes.routes
+import yoshixmk.jwt.sample.JwtConfig
+import yoshixmk.jwt.sample.User
+import yoshixmk.routes.routes
 import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
