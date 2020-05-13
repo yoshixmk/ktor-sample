@@ -25,7 +25,7 @@ import io.ktor.util.KtorExperimentalAPI
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.event.Level
 import yoshixmk.jwt.sample.JwtConfig
-import yoshixmk.jwt.sample.User
+import yoshixmk.jwt.sample.JwtUser
 import yoshixmk.routes.routes
 import java.time.Duration
 
@@ -94,7 +94,7 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
             verifier(JwtConfig.verifier)
             realm = "ktor.io"
             validate {
-                if (it.payload.claims.contains("id")) User.testUser else null
+                if (it.payload.claims.contains("id")) JwtUser.testUser else null
             }
         }
     }
@@ -104,7 +104,7 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
 
         post("/login") {
             // val credentials = call.receive<UserPasswordCredential>()
-            val user = User.testUser // user by credentials
+            val user = JwtUser.testUser // user by credentials
             val token = JwtConfig.makeToken(user)
             call.respondText(token)
         }
