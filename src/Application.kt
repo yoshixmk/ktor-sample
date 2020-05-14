@@ -27,7 +27,7 @@ import org.koin.ktor.ext.Koin
 import org.slf4j.event.Level
 import yoshixmk.jwt.sample.JwtConfig
 import yoshixmk.jwt.sample.JwtUser
-import yoshixmk.routes.routes
+import yoshixmk.infrastructures.routes.routes
 import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
