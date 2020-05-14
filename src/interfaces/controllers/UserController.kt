@@ -1,13 +1,17 @@
 package yoshixmk.interfaces.controllers
 
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import yoshixmk.domains.users.User
 import yoshixmk.usecases.service.IUserService
 
-interface IUserController {
+interface IUserController : KoinComponent {
+
     fun getUser(userId: UserId): UserResponse
 }
 
-class UserController(private val userService: IUserService) : IUserController {
+class UserController : IUserController {
+    private val userService: IUserService by inject()
     override fun getUser(userId: UserId): UserResponse {
         return userService.findById(userId.id).toResponse()
     }

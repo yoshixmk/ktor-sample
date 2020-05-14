@@ -23,6 +23,7 @@ import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
 import org.jetbrains.exposed.sql.Database
+import org.koin.ktor.ext.Koin
 import org.slf4j.event.Level
 import yoshixmk.jwt.sample.JwtConfig
 import yoshixmk.jwt.sample.JwtUser
@@ -66,6 +67,10 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
         header("MyCustomHeader")
         allowCredentials = true
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.     
+    }
+
+    install(Koin) {
+        modules(koinModules)
     }
 
     if (!testing) {

@@ -6,15 +6,13 @@ import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.route
-import yoshixmk.databases.repository.UserRepository
-import yoshixmk.interfaces.controllers.UserController
+import org.koin.ktor.ext.inject
+import yoshixmk.interfaces.controllers.IUserController
 import yoshixmk.interfaces.controllers.UserId
-import yoshixmk.usecases.service.UserService
 
 fun Routing.users() {
 
-    // TODO injectを用いる
-    val userController = UserController(UserService(UserRepository()))
+    val userController: IUserController by inject()
 
     route("v1/users") {
         route("{id}") {
