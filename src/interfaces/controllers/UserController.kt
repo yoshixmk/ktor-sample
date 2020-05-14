@@ -4,11 +4,11 @@ import yoshixmk.domains.users.User
 import yoshixmk.usecases.service.IUserService
 
 interface IUserController {
-    fun getUser(userId: Long): UserResponse
+    fun getUser(userId: UserId): UserResponse
 }
 
-class UserController(private val userService: IUserService) {
-    fun getUser(userId: UserId): UserResponse {
+class UserController(private val userService: IUserService) : IUserController {
+    override fun getUser(userId: UserId): UserResponse {
         return userService.findById(userId.id).toResponse()
     }
 }
