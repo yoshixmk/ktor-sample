@@ -8,8 +8,8 @@ import io.ktor.routing.*
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import yoshixmk.json.Memo
-import yoshixmk.json.MemoContent
+import yoshixmk.interfaces.controllers.Memo
+import yoshixmk.interfaces.controllers.MemoContent
 
 fun Routing.memos() =
     route("memos") {
@@ -52,7 +52,7 @@ fun Routing.memos() =
         put("{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@put call.respond(HttpStatusCode.Companion.BadRequest)
-            val memo = call.receive<yoshixmk.json.MemoContent>()
+            val memo = call.receive<MemoContent>()
             val updatedCount = transaction {
                 yoshixmk.databases.dao.Memos.update({ yoshixmk.databases.dao.Memos.id eq id }) {
                     it[subject] = memo.subject
