@@ -1,4 +1,4 @@
-package yoshixmk.routes
+package yoshixmk.infrastructures.routes
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
@@ -8,16 +8,18 @@ import io.ktor.routing.*
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import yoshixmk.json.Memo
-import yoshixmk.json.MemoContent
+import org.koin.ktor.ext.inject
+import yoshixmk.interfaces.controllers.IMemoController
+import yoshixmk.interfaces.controllers.Memo
+import yoshixmk.interfaces.controllers.MemoContent
 
-fun Routing.memos() =
+fun Routing.memos() {
+
+    val memoController: IMemoController by inject()
+
     route("memos") {
         get {
-            val list = transaction {
-                yoshixmk.databases.dao.Memo.all().sortedBy { it.id }
-                    .map { m -> Memo(m.id.value, m.subject) }
-            }
+            val list = memoController.getMemos()
             call.respond(list)
         }
 
@@ -52,7 +54,7 @@ fun Routing.memos() =
         put("{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@put call.respond(HttpStatusCode.Companion.BadRequest)
-            val memo = call.receive<yoshixmk.json.MemoContent>()
+            val memo = call.receive<MemoContent>()
             val updatedCount = transaction {
                 yoshixmk.databases.dao.Memos.update({ yoshixmk.databases.dao.Memos.id eq id }) {
                     it[subject] = memo.subject
@@ -78,3 +80,4 @@ fun Routing.memos() =
                 call.respond(HttpStatusCode.Companion.NotFound)
         }
     }
+}
