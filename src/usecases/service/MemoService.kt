@@ -4,7 +4,7 @@ import yoshixmk.domains.irepository.IMemoRepository
 import yoshixmk.domains.memos.Memo
 
 interface IMemoService {
-    fun findById(userId: Int): Memo?
+    fun findById(id: Int): Memo?
 
     fun findAllSortedById(): List<Memo>
 
@@ -16,9 +16,8 @@ interface IMemoService {
 }
 
 class MemoService(private val repository: IMemoRepository) : IMemoService {
-    override fun findById(userId: Int): Memo? {
-        TODO("Not yet implemented")
-    }
+    override fun findById(id: Int): Memo? =
+        repository.findById(id)
 
     override fun findAllSortedById(): List<Memo> =
         repository.findAllSortedById()

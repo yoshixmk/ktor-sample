@@ -12,6 +12,7 @@ import org.koin.ktor.ext.inject
 import yoshixmk.interfaces.controllers.IMemoController
 import yoshixmk.interfaces.controllers.Memo
 import yoshixmk.interfaces.controllers.MemoContent
+import yoshixmk.interfaces.controllers.MemoId
 
 fun Routing.memos() {
 
@@ -26,11 +27,7 @@ fun Routing.memos() {
         post<MemoContent>("") { input ->
             call.respond(
                 HttpStatusCode.Created,
-                mapOf(
-                    "memo_id" to transaction {
-                        yoshixmk.databases.dao.Memo.new { this.subject = input.subject }
-                    }.id.value
-                )
+                memoController.postMemo(MemoContent(input.subject))
             )
         }
 
@@ -39,16 +36,9 @@ fun Routing.memos() {
                 HttpStatusCode.BadRequest,
                 "Invalid parameter: [${call.parameters["id"]}]"
             )
-            val memoEntity =
-                transaction {
-                    yoshixmk.databases.dao.Memo.findById(id)
-                } ?: return@get call.respond(HttpStatusCode.NotFound)
-            call.respond(
-                Memo(
-                    memoEntity.id.value,
-                    memoEntity.subject
-                )
-            )
+            val memoEntity = memoController.getMemo(MemoId(id))
+                ?: return@get call.respond(HttpStatusCode.NotFound)
+            call.respond(memoEntity)
         }
 
         put("{id}") {
