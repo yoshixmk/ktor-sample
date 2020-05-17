@@ -1,11 +1,9 @@
 package yoshixmk.interfaces.controllers
 
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import yoshixmk.usecases.service.IMemoService
 
 
-interface IMemoController : KoinComponent {
+interface IMemoController {
     fun getMemo(memoId: MemoId): Memo
     fun getMemos(): List<Memo>
     fun postMemo(memo: MemoContent): Int
@@ -13,9 +11,7 @@ interface IMemoController : KoinComponent {
     fun deleteMemo(memoId: MemoId)
 }
 
-class MemoController : IMemoController {
-    val service: IMemoService by inject()
-
+class MemoController(private val service: IMemoService) : IMemoController {
     override fun getMemo(memoId: MemoId): Memo {
         TODO("Not yet implemented")
     }

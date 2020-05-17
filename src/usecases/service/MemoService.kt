@@ -1,9 +1,9 @@
 package yoshixmk.usecases.service
 
-import org.koin.core.KoinComponent
+import yoshixmk.domains.irepository.IMemoRepository
 import yoshixmk.domains.memos.Memo
 
-interface IMemoService : KoinComponent {
+interface IMemoService {
     fun findById(userId: Int): Memo?
 
     fun findAllSortedById(): List<Memo>
@@ -15,14 +15,13 @@ interface IMemoService : KoinComponent {
     fun deleteById(id: Int): Long
 }
 
-class MemoService : IMemoService {
+class MemoService(private val repository: IMemoRepository) : IMemoService {
     override fun findById(userId: Int): Memo? {
         TODO("Not yet implemented")
     }
 
-    override fun findAllSortedById(): List<Memo> {
-        TODO("Not yet implemented")
-    }
+    override fun findAllSortedById(): List<Memo> =
+        repository.findAllSortedById()
 
     override fun create(subject: String): Memo {
         TODO("Not yet implemented")
