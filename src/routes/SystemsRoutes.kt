@@ -1,4 +1,4 @@
-package routes
+package yoshixmk.routes
 
 import io.ktor.application.call
 import io.ktor.auth.authenticate
@@ -24,7 +24,7 @@ fun Routing.systems() {
             call.respond(mapOf("hello" to "world"))
         }
     }
-    
+
     authenticate("jwt") {
         get("/boom") {
             // throw Exception("boom")

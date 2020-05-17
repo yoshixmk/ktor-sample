@@ -1,4 +1,4 @@
-package jwt.sample
+package yoshixmk.jwt.sample
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
@@ -20,7 +20,7 @@ object JwtConfig {
     /**
      * Produce a token for this combination of User and Account
      */
-    fun makeToken(user: User): String = JWT.create()
+    fun makeToken(user: JwtUser): String = JWT.create()
         .withSubject("Authentication")
         .withIssuer(issuer)
         .withClaim("id", user.id)

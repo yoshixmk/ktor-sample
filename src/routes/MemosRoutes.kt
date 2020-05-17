@@ -1,21 +1,21 @@
-package routes
+package yoshixmk.routes
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
-import json.Memo
-import json.MemoContent
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import yoshixmk.json.Memo
+import yoshixmk.json.MemoContent
 
 fun Routing.memos() =
     route("memos") {
         get {
             val list = transaction {
-                infrastructure.dao.Memo.all().sortedBy { it.id }
+                yoshixmk.databases.dao.Memo.all().sortedBy { it.id }
                     .map { m -> Memo(m.id.value, m.subject) }
             }
             call.respond(list)
@@ -26,7 +26,7 @@ fun Routing.memos() =
                 HttpStatusCode.Created,
                 mapOf(
                     "memo_id" to transaction {
-                        infrastructure.dao.Memo.new { this.subject = input.subject }
+                        yoshixmk.databases.dao.Memo.new { this.subject = input.subject }
                     }.id.value
                 )
             )
@@ -39,17 +39,22 @@ fun Routing.memos() =
             )
             val memoEntity =
                 transaction {
-                    infrastructure.dao.Memo.findById(id)
+                    yoshixmk.databases.dao.Memo.findById(id)
                 } ?: return@get call.respond(HttpStatusCode.NotFound)
-            call.respond(Memo(memoEntity.id.value, memoEntity.subject))
+            call.respond(
+                Memo(
+                    memoEntity.id.value,
+                    memoEntity.subject
+                )
+            )
         }
 
         put("{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@put call.respond(HttpStatusCode.Companion.BadRequest)
-            val memo = call.receive<json.MemoContent>()
+            val memo = call.receive<yoshixmk.json.MemoContent>()
             val updatedCount = transaction {
-                infrastructure.dao.Memos.update({ infrastructure.dao.Memos.id eq id }) {
+                yoshixmk.databases.dao.Memos.update({ yoshixmk.databases.dao.Memos.id eq id }) {
                     it[subject] = memo.subject
                 }
             }
@@ -66,7 +71,7 @@ fun Routing.memos() =
             val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@delete call.respond(HttpStatusCode.Companion.BadRequest)
             val deletedCount =
-                transaction { infrastructure.dao.Memos.deleteWhere { infrastructure.dao.Memos.id eq id } }
+                transaction { yoshixmk.databases.dao.Memos.deleteWhere { yoshixmk.databases.dao.Memos.id eq id } }
             return@delete if (deletedCount > 0)
                 call.respond(HttpStatusCode.Companion.NoContent)
             else

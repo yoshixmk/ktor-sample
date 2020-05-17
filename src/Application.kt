@@ -22,11 +22,12 @@ import io.ktor.response.respondText
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
-import jwt.sample.JwtConfig
-import jwt.sample.User
 import org.jetbrains.exposed.sql.Database
+import org.koin.ktor.ext.Koin
 import org.slf4j.event.Level
-import routes.routes
+import yoshixmk.jwt.sample.JwtConfig
+import yoshixmk.jwt.sample.JwtUser
+import yoshixmk.routes.routes
 import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -68,6 +69,10 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.     
     }
 
+    install(Koin) {
+        modules(koinModules)
+    }
+
     if (!testing) {
         val config = environment.config
         Database.connect(
@@ -94,7 +99,7 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
             verifier(JwtConfig.verifier)
             realm = "ktor.io"
             validate {
-                if (it.payload.claims.contains("id")) User.testUser else null
+                if (it.payload.claims.contains("id")) JwtUser.testUser else null
             }
         }
     }
@@ -104,7 +109,7 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
 
         post("/login") {
             // val credentials = call.receive<UserPasswordCredential>()
-            val user = User.testUser // user by credentials
+            val user = JwtUser.testUser // user by credentials
             val token = JwtConfig.makeToken(user)
             call.respondText(token)
         }

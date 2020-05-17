@@ -1,4 +1,4 @@
-package infrastructure.dao
+package yoshixmk.databases.dao
 
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
