@@ -1,27 +1,34 @@
-package yoshixmk
+package interfaces.controllers
 
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.withTestApplication
 import io.ktor.util.KtorExperimentalAPI
+import yoshixmk.module
+import yoshixmk.testKoinModules
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ApplicationTest {
+internal class MemoControllerTest {
+
     @KtorExperimentalAPI
     @Test
-    fun testRoot() {
+    fun GET_memos_200が返ってくること() {
         withTestApplication({ module(testing = true, testKoinModules = testKoinModules) }) {
-            handleRequest(HttpMethod.Get, "/") {
-                addHeader(
-                    "Authorization",
-                    "Basic YmFzaWMtYXV0aDpiYXNpYy1hdXRo"
-                )
-            }.apply {
+            handleRequest(HttpMethod.Get, "/memos").apply {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("HELLO WORLD!", response.content)
+                // assertEquals("HELLO WORLD!", response.content)
             }
         }
     }
+//
+//    fun postUser() {
+//    }
+//
+//    fun putUser() {
+//    }
+//
+//    fun deleteUser() {
+//    }
 }
