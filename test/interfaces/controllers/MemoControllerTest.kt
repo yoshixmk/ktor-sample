@@ -20,7 +20,7 @@ import kotlin.test.assertEquals
 class MemoControllerTest : AutoCloseKoinTest() {
 
     init {
-         startKoin { modules(testKoinModules) }
+        startKoin { modules(testKoinModules) }
     }
 
     private val jacksonObjectMapper = jacksonObjectMapper()
@@ -53,6 +53,27 @@ class MemoControllerTest : AutoCloseKoinTest() {
                 setBody("""{"subject": "これはメモです"}""")
             }.apply {
                 assertEquals(HttpStatusCode.Created, response.status())
+            }
+        }
+    }
+
+    @Test
+    fun PUT_memos_200が返ってくること() {
+        withTestApplication({ module(testing = true) }) {
+            handleRequest(HttpMethod.Put, "/memos/1") {
+                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody("""{"subject": "1のメモを更新"}""")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+            }
+        }
+    }
+
+    @Test
+    fun DELETE_memosId_204が返ってくること() {
+        withTestApplication({ module(testing = true) }) {
+            handleRequest(HttpMethod.Delete, "/memos/1").apply {
+                assertEquals(HttpStatusCode.NoContent, response.status())
             }
         }
     }

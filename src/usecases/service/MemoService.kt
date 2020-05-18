@@ -2,6 +2,7 @@ package yoshixmk.usecases.service
 
 import yoshixmk.domains.irepository.IMemoRepository
 import yoshixmk.domains.memos.Memo
+import yoshixmk.domains.memos.MemoSubject
 
 interface IMemoService {
     fun findById(id: Int): Memo?
@@ -12,7 +13,7 @@ interface IMemoService {
 
     fun update(id: Int, subject: String): Memo?
 
-    fun deleteById(id: Int): Long
+    fun deleteById(id: Int): Memo?
 }
 
 class MemoService(private val repository: IMemoRepository) : IMemoService {
@@ -22,15 +23,12 @@ class MemoService(private val repository: IMemoRepository) : IMemoService {
     override fun findAllSortedById(): List<Memo> =
         repository.findAllSortedById()
 
-    override fun create(subject: String): Memo {
-        TODO("Not yet implemented")
-    }
+    override fun create(subject: String): Memo =
+        repository.create(MemoSubject(subject))
 
-    override fun update(id: Int, subject: String): Memo? {
-        TODO("Not yet implemented")
-    }
+    override fun update(id: Int, subject: String): Memo? =
+        repository.update(Memo(id, subject))
 
-    override fun deleteById(id: Int): Long {
-        TODO("Not yet implemented")
-    }
+    override fun deleteById(id: Int): Memo? =
+        repository.deleteById(id)
 }

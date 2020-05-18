@@ -7,7 +7,6 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import org.koin.ktor.ext.inject
 import yoshixmk.interfaces.controllers.IMemoController
 import yoshixmk.interfaces.controllers.Memo
@@ -45,15 +44,11 @@ fun Routing.memos() {
             val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@put call.respond(HttpStatusCode.Companion.BadRequest)
             val memo = call.receive<MemoContent>()
-            val updatedCount = transaction {
-                yoshixmk.databases.dao.Memos.update({ yoshixmk.databases.dao.Memos.id eq id }) {
-                    it[subject] = memo.subject
-                }
-            }
-            return@put if (updatedCount > 0)
+            val createdMemo = memoController.putMemo(Memo(id, memo.subject))
+            return@put if (createdMemo != null)
                 call.respond(
                     HttpStatusCode.Companion.OK,
-                    Memo(id, memo.subject)
+                    createdMemo
                 )
             else
                 call.respond(HttpStatusCode.Companion.NotFound)
@@ -62,9 +57,8 @@ fun Routing.memos() {
         delete("{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@delete call.respond(HttpStatusCode.Companion.BadRequest)
-            val deletedCount =
-                transaction { yoshixmk.databases.dao.Memos.deleteWhere { yoshixmk.databases.dao.Memos.id eq id } }
-            return@delete if (deletedCount > 0)
+            val deletedMemo = memoController.deleteMemo(MemoId(id))
+            return@delete if (deletedMemo != null)
                 call.respond(HttpStatusCode.Companion.NoContent)
             else
                 call.respond(HttpStatusCode.Companion.NotFound)

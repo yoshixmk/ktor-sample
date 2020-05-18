@@ -36,11 +36,25 @@ class MemoServiceTest : AutoCloseKoinTest() {
         )
     }
 
-//    @Test
-//    fun findByIdでデータが取得できること() {
-//        val actual = repository.create()
-//        assert(
-//            actual == Memo(1, "memo1")
-//        )
-//    }
+    @Test
+    fun createでデータが作成できること() {
+        val actual = service.create("memo3")
+        assert(
+            actual == Memo(3, "memo3")
+        )
+    }
+
+    @Test
+    fun updateでデータが更新できること() {
+        val actual = service.update(1, "memo1 updated")
+        assert(
+            actual == Memo(1, "memo1 updated")
+        )
+    }
+
+    @Test
+    fun deleteByIdでデータが削除できること() {
+        val actual = service.deleteById(1)
+        assert(actual == Memo(1, "memo1"))
+    }
 }
