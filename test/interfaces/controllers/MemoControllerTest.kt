@@ -46,6 +46,15 @@ class MemoControllerTest : AutoCloseKoinTest() {
     }
 
     @Test
+    fun GET_memosId_一致するidがない場合404が返ってくること() {
+        withTestApplication({ module(testing = true) }) {
+            handleRequest(HttpMethod.Get, "/memos/99").apply {
+                assertEquals(HttpStatusCode.NotFound, response.status())
+            }
+        }
+    }
+
+    @Test
     fun POST_memos_201が返ってくること() {
         withTestApplication({ module(testing = true) }) {
             handleRequest(HttpMethod.Post, "/memos") {
@@ -58,7 +67,7 @@ class MemoControllerTest : AutoCloseKoinTest() {
     }
 
     @Test
-    fun PUT_memos_200が返ってくること() {
+    fun PUT_memosId_200が返ってくること() {
         withTestApplication({ module(testing = true) }) {
             handleRequest(HttpMethod.Put, "/memos/1") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -70,10 +79,31 @@ class MemoControllerTest : AutoCloseKoinTest() {
     }
 
     @Test
+    fun PUT_memosId_一致するIdがなかった場合404が返ってくること() {
+        withTestApplication({ module(testing = true) }) {
+            handleRequest(HttpMethod.Put, "/memos/99") {
+                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody("""{"subject": "99のメモを更新"}""")
+            }.apply {
+                assertEquals(HttpStatusCode.NotFound, response.status())
+            }
+        }
+    }
+
+    @Test
     fun DELETE_memosId_204が返ってくること() {
         withTestApplication({ module(testing = true) }) {
             handleRequest(HttpMethod.Delete, "/memos/1").apply {
                 assertEquals(HttpStatusCode.NoContent, response.status())
+            }
+        }
+    }
+
+    @Test
+    fun DELETE_memosId_一致するIdがない時は404が返ってくること() {
+        withTestApplication({ module(testing = true) }) {
+            handleRequest(HttpMethod.Delete, "/memos/99").apply {
+                assertEquals(HttpStatusCode.NotFound, response.status())
             }
         }
     }
