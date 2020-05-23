@@ -1,9 +1,8 @@
-package yoshixmk.routes
+package yoshixmk.infrastructures.routes
 
 import io.ktor.http.content.resource
 import io.ktor.http.content.static
 import io.ktor.routing.Routing
-import yoshixmk.infrastructures.routes.users
 
 fun Routing.routes() {
     // システム全般、サンプルコード

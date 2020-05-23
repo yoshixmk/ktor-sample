@@ -25,9 +25,9 @@ import io.ktor.util.KtorExperimentalAPI
 import org.jetbrains.exposed.sql.Database
 import org.koin.ktor.ext.Koin
 import org.slf4j.event.Level
+import yoshixmk.infrastructures.routes.routes
 import yoshixmk.jwt.sample.JwtConfig
 import yoshixmk.jwt.sample.JwtUser
-import yoshixmk.routes.routes
 import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -35,7 +35,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @KtorExperimentalAPI
 //@Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
-fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
+fun Application.module(testing: Boolean = false) {
     install(ContentNegotiation) {
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT)
@@ -69,11 +69,12 @@ fun Application.module(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.     
     }
 
-    install(Koin) {
-        modules(koinModules)
-    }
 
     if (!testing) {
+        install(Koin) {
+            modules(koinModules)
+        }
+
         val config = environment.config
         Database.connect(
             url = config.property("database.url").getString(),
