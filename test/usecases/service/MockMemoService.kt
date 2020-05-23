@@ -21,6 +21,6 @@ class MockMemoService : IMemoService {
             Memo(id, "更新しました")
         else null
 
-    override fun deleteById(id: Int): Long =
-        if (id <= data.size) 1 else 0
+    override fun deleteById(id: Int): Memo? =
+        if (id == 1) Memo(1, "1のメモ") else null
 }
