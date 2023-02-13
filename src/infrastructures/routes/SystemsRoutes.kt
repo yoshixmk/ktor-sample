@@ -1,4 +1,4 @@
-package yoshixmk.routes
+package yoshixmk.infrastructures.routes
 
 import io.ktor.application.call
 import io.ktor.auth.authenticate
